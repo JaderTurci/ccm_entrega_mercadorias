@@ -56,6 +56,7 @@ header('Content-Type: text/html; charset=UTF-8');
         color: #fff;
         border: none;
         border-radius: 6px;
+        cursor: pointer;
     }
 
     button:hover {
@@ -112,6 +113,45 @@ header('Content-Type: text/html; charset=UTF-8');
     .suggestions-list li:hover {
         background-color: #f0f0f0;
     }
+
+    /* Estilos para o modal popup */
+    .modal {
+        display: none; /* oculto por padrão */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #ffffff;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 400px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    #okBtn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 1.2em;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    #okBtn:hover {
+        background-color: #0069d9;
+    }
 </style>
 </head>
 <body>
@@ -138,8 +178,37 @@ header('Content-Type: text/html; charset=UTF-8');
     <div id="resposta"></div>
 </div>
 
+<!-- Modal para exibir a resposta -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <p id="modal-message"></p>
+        <button id="okBtn">OK</button>
+    </div>
+</div>
+
 <script>
-document.getElementById('envioForm').addEventListener('submit', function(event) {
+// Lista de notas fiscais para autocomplete
+const notas = ["15423","15453","15543","15643","16743","16892","18443","19443","19543","19643","19655","19666","19667"];
+
+const inputNota = document.getElementById('numero_nota');
+const suggestions = document.getElementById('suggestions');
+const submitBtn = document.getElementById('submitBtn');
+const form = document.getElementById('envioForm');
+// Variáveis relacionadas ao modal
+const modal = document.getElementById('modal');
+const modalMessage = document.getElementById('modal-message');
+const okBtn = document.getElementById('okBtn');
+
+// Variável para armazenar a nota fiscal selecionada
+let selectedNote = null;
+
+// Garante que o botão de envio inicie desabilitado
+if (submitBtn) {
+    submitBtn.disabled = true;
+}
+
+// Evento de envio do formulário
+form.addEventListener('submit', function(event) {
     event.preventDefault();
     const formData = new FormData(this);
     fetch('events.php', {
@@ -148,27 +217,44 @@ document.getElementById('envioForm').addEventListener('submit', function(event) 
     })
     .then(response => response.text())
     .then(data => {
-        const resp = document.getElementById('resposta');
-        resp.innerHTML = data;
-        resp.style.display = 'block';
+        // Exibe a resposta no modal em vez de na div #resposta
+        modalMessage.innerHTML = data;
+        modal.style.display = 'block';
     })
     .catch(error => {
-        const resp = document.getElementById('resposta');
-        resp.innerHTML = 'Erro ao enviar dados: ' + error;
-        resp.style.display = 'block';
+        modalMessage.innerHTML = 'Erro ao enviar dados: ' + error;
+        modal.style.display = 'block';
     });
 });
 
-// Lista de notas fiscais para autocomplete
-const notas = ["15423","15453","15543","15643","16743","16892","18443","19443","19543","19643","19655","19666","19667"];
-const inputNota = document.getElementById('numero_nota');
-const suggestions = document.getElementById('suggestions');
-const submitBtn = document.getElementById('submitBtn');
-// Garante que o botão de envio inicie desabilitado
-if (submitBtn) {
-    submitBtn.disabled = true;
+// Função para renderizar as sugestões de notas fiscais
+function renderSuggestions(value) {
+    // Limpa a lista de sugestões
+    suggestions.innerHTML = '';
+    // Filtra notas que começam com o valor digitado (se vazio, retorna todas)
+    const matches = notas.filter(nota => nota.startsWith(value));
+    if (matches.length === 0) {
+        suggestions.style.display = 'none';
+        return;
+    }
+    matches.forEach(match => {
+        const li = document.createElement('li');
+        li.textContent = match;
+        li.addEventListener('click', function() {
+            inputNota.value = match;
+            selectedNote = match;
+            suggestions.style.display = 'none';
+            // Ao selecionar uma nota, habilita o botão de envio
+            if (submitBtn) {
+                submitBtn.disabled = false;
+            }
+        });
+        suggestions.appendChild(li);
+    });
+    suggestions.style.display = 'block';
 }
 
+// Evento de entrada no campo de número de nota
 inputNota.addEventListener('input', function() {
     // Sempre desabilita o botão enquanto o usuário está digitando
     if (submitBtn) {
@@ -180,33 +266,33 @@ inputNota.addEventListener('input', function() {
         this.value = cleaned;
     }
     const value = cleaned.trim();
-    // Limpa a lista de sugestões
-    suggestions.innerHTML = '';
-    // Filtra notas que começam com o valor digitado (se vazio, retorna todas)
-    const matches = notas.filter(nota => nota.startsWith(value));
-    if (matches.length === 0) {
-        suggestions.style.display = 'none';
-        return;
-    }
-    // Cria elementos de lista para cada sugestão
-    matches.forEach(match => {
-        const li = document.createElement('li');
-        li.textContent = match;
-        li.addEventListener('click', function() {
-            inputNota.value = match;
-            suggestions.style.display = 'none';
-            // Ao selecionar uma nota, habilita o botão de envio
-            if (submitBtn) {
-                submitBtn.disabled = false;
-            }
-        });
-        suggestions.appendChild(li);
-    });
-    suggestions.style.display = 'block';
+    renderSuggestions(value);
 });
 
 // Exibe todas as sugestões quando a página carrega
 inputNota.dispatchEvent(new Event('input'));
+
+// Evento do botão OK do modal
+okBtn.addEventListener('click', function() {
+    // Fecha o modal
+    modal.style.display = 'none';
+    // Limpa o campo de nota
+    inputNota.value = '';
+    // Remove a nota selecionada do array de notas
+    if (selectedNote) {
+        const index = notas.indexOf(selectedNote);
+        if (index > -1) {
+            notas.splice(index, 1);
+        }
+        selectedNote = null;
+    }
+    // Desabilita novamente o botão de envio
+    if (submitBtn) {
+        submitBtn.disabled = true;
+    }
+    // Reexibe as sugestões atualizadas
+    renderSuggestions('');
+});
 </script>
 </body>
 </html>
