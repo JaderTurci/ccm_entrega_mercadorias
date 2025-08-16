@@ -16,14 +16,17 @@ class Sql:
 		if self.debug:
 			print("Conectando SQL...")
 
-		# Lê username e senha do arquivo config.local
-		user, pwd = None, None
+		# Lê config.local no formato chave=valor
+		config = {}
 		if os.path.exists("config.local"):
 			with open("config.local", "r") as f:
-				lines = f.read().splitlines()
-				if len(lines) >= 2:
-					user = lines[0].strip()
-					pwd = lines[1].strip()
+				for line in f:
+					if "=" in line:
+						key, value = line.strip().split("=", 1)
+						config[key.strip()] = value.strip()
+		user = config.get("username")
+		pwd = config.get("senha")
+		database = config.get("database", database)
 		if not user or not pwd:
 			raise Exception("Arquivo config.local inválido ou não encontrado")
 
