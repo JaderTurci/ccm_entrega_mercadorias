@@ -68,24 +68,37 @@
         border-radius: 6px;
         display: none;
     }
+
+    .logo-container {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .logo-container img {
+        max-width: 120px;
+        height: auto;
+    }
 </style>
 </head>
 <body>
 <div class="app-container">
-<h1>Entrega de Mercadorias</h1>
-<form id="envioForm">
-    <label for="username">Usuário:</label>
-    <input type="text" id="username" name="username" required>
+    <div class="logo-container">
+        <img src="logotipo.png" alt="Logo CCM">
+    </div>
+    <h1>Entrega de Mercadorias</h1>
+    <form id="envioForm">
+        <label for="username">Usuário:</label>
+        <input type="text" id="username" name="username" required>
 
-    <label for="senha">Senha:</label>
-    <input type="password" id="senha" name="senha" required>
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" required>
 
-    <label for="numero_nota">Número da Nota Fiscal:</label>
-    <input type="text" id="numero_nota" name="numero_nota" required>
+        <label for="numero_nota">Número da Nota Fiscal:</label>
+        <input type="text" id="numero_nota" name="numero_nota" required>
 
-    <button type="submit">Enviar</button>
-</form>
-<div id="resposta"></div>
+        <button type="submit">Enviar</button>
+    </form>
+    <div id="resposta"></div>
 </div>
 
 <script>
