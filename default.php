@@ -125,7 +125,7 @@ header('Content-Type: text/html; charset=UTF-8');
         <!-- Lista de sugestões de notas fiscais -->
         <ul id="suggestions" class="suggestions-list"></ul>
 
-        <button type="submit">Enviar</button>
+        <button type="submit" id="submitBtn" disabled>Enviar</button>
     </form>
     <div id="resposta"></div>
 </div>
@@ -157,8 +157,18 @@ document.getElementById('envioForm').addEventListener('submit', function(event) 
 const notas = ["15423","15453","15543","15643","16743","16892","18443","19443","19543","19643","19655","19666","19667"];
 const inputNota = document.getElementById('numero_nota');
 const suggestions = document.getElementById('suggestions');
+const submitBtn = document.getElementById('submitBtn');
+// Garante que o botão de envio inicie desabilitado
+if (submitBtn) {
+    submitBtn.disabled = true;
+}
 
 inputNota.addEventListener('input', function() {
+    // Sempre desabilita o botão enquanto o usuário está digitando
+    if (submitBtn) {
+        submitBtn.disabled = true;
+    }
+
     // Remove caracteres não numéricos para garantir apenas números
     let cleaned = this.value.replace(/\D/g, '');
     if (cleaned !== this.value) {
@@ -181,10 +191,14 @@ inputNota.addEventListener('input', function() {
     matches.forEach(match => {
         const li = document.createElement('li');
         li.textContent = match;
-        li.addEventListener('click', function() {
-            inputNota.value = match;
-            suggestions.style.display = 'none';
-        });
+            li.addEventListener('click', function() {
+                inputNota.value = match;
+                suggestions.style.display = 'none';
+                // Ao selecionar uma nota, habilita o botão de envio
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                }
+            });
         suggestions.appendChild(li);
     });
     suggestions.style.display = 'block';
