@@ -82,6 +82,28 @@ header('Content-Type: text/html; charset=UTF-8');
         max-width: 120px;
         height: auto;
     }
+
+    /* Estilos para a lista de sugestões de notas fiscais */
+    .suggestions-list {
+        list-style-type: none;
+        padding: 0;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #ffffff;
+        max-height: 150px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .suggestions-list li {
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .suggestions-list li:hover {
+        background-color: #f0f0f0;
+    }
 </style>
 </head>
 <body>
@@ -98,7 +120,10 @@ header('Content-Type: text/html; charset=UTF-8');
         <input type="password" id="senha" name="senha" required>
 
         <label for="numero_nota">Número da Nota Fiscal:</label>
-        <input type="text" id="numero_nota" name="numero_nota" required>
+        <!-- Campo numérico com entrada restrita a números -->
+        <input type="text" id="numero_nota" name="numero_nota" required inputmode="numeric" pattern="\d*">
+        <!-- Lista de sugestões de notas fiscais -->
+        <ul id="suggestions" class="suggestions-list"></ul>
 
         <button type="submit">Enviar</button>
     </form>
@@ -124,6 +149,45 @@ document.getElementById('envioForm').addEventListener('submit', function(event) 
         resp.innerHTML = 'Erro ao enviar dados: ' + error;
         resp.style.display = 'block';
     });
+
+    // Fecha o manipulador de submissão do formulário
+});
+
+// Lista de notas fiscais para autocomplete
+const notas = ["15423","15453","15543","15643","16743","16892","18443","19443","19543","19643","19655","19666","19667"];
+const inputNota = document.getElementById('numero_nota');
+const suggestions = document.getElementById('suggestions');
+
+inputNota.addEventListener('input', function() {
+    // Remove caracteres não numéricos para garantir apenas números
+    let cleaned = this.value.replace(/\D/g, '');
+    if (cleaned !== this.value) {
+        this.value = cleaned;
+    }
+    const value = cleaned.trim();
+    // Limpa a lista e oculta se a entrada estiver vazia
+    suggestions.innerHTML = '';
+    if (value === '') {
+        suggestions.style.display = 'none';
+        return;
+    }
+    // Filtra notas que começam com o valor digitado
+    const matches = notas.filter(nota => nota.startsWith(value));
+    if (matches.length === 0) {
+        suggestions.style.display = 'none';
+        return;
+    }
+    // Cria elementos de lista para cada sugestão
+    matches.forEach(match => {
+        const li = document.createElement('li');
+        li.textContent = match;
+        li.addEventListener('click', function() {
+            inputNota.value = match;
+            suggestions.style.display = 'none';
+        });
+        suggestions.appendChild(li);
+    });
+    suggestions.style.display = 'block';
 });
 </script>
 </body>
