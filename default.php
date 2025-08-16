@@ -62,6 +62,14 @@ header('Content-Type: text/html; charset=UTF-8');
         background-color: #0069d9;
     }
 
+    /* Estilo para botão desabilitado */
+    button:disabled {
+        background-color: #6c757d;
+        color: #fff;
+        cursor: not-allowed;
+        opacity: 0.65;
+    }
+
     #resposta {
         margin-top: 30px;
         font-size: 1.4em;
@@ -149,8 +157,6 @@ document.getElementById('envioForm').addEventListener('submit', function(event) 
         resp.innerHTML = 'Erro ao enviar dados: ' + error;
         resp.style.display = 'block';
     });
-
-    // Fecha o manipulador de submissão do formulário
 });
 
 // Lista de notas fiscais para autocomplete
@@ -168,20 +174,15 @@ inputNota.addEventListener('input', function() {
     if (submitBtn) {
         submitBtn.disabled = true;
     }
-
     // Remove caracteres não numéricos para garantir apenas números
-    let cleaned = this.value.replace(/\D/g, '');
+    let cleaned = this.value.replace(/[^0-9]/g, '');
     if (cleaned !== this.value) {
         this.value = cleaned;
     }
     const value = cleaned.trim();
-    // Limpa a lista e oculta se a entrada estiver vazia
+    // Limpa a lista de sugestões
     suggestions.innerHTML = '';
-    if (value === '') {
-        suggestions.style.display = 'none';
-        return;
-    }
-    // Filtra notas que começam com o valor digitado
+    // Filtra notas que começam com o valor digitado (se vazio, retorna todas)
     const matches = notas.filter(nota => nota.startsWith(value));
     if (matches.length === 0) {
         suggestions.style.display = 'none';
@@ -191,18 +192,21 @@ inputNota.addEventListener('input', function() {
     matches.forEach(match => {
         const li = document.createElement('li');
         li.textContent = match;
-            li.addEventListener('click', function() {
-                inputNota.value = match;
-                suggestions.style.display = 'none';
-                // Ao selecionar uma nota, habilita o botão de envio
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                }
-            });
+        li.addEventListener('click', function() {
+            inputNota.value = match;
+            suggestions.style.display = 'none';
+            // Ao selecionar uma nota, habilita o botão de envio
+            if (submitBtn) {
+                submitBtn.disabled = false;
+            }
+        });
         suggestions.appendChild(li);
     });
     suggestions.style.display = 'block';
 });
+
+// Exibe todas as sugestões quando a página carrega
+inputNota.dispatchEvent(new Event('input'));
 </script>
 </body>
 </html>
