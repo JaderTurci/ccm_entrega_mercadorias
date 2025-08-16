@@ -1,3 +1,7 @@
+<?php
+// Força o uso de UTF-8 nas respostas HTTP
+header('Content-Type: text/html; charset=UTF-8');
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
