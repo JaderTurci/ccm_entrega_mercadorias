@@ -199,6 +199,26 @@ const modal = document.getElementById('modal');
 const modalMessage = document.getElementById('modal-message');
 const okBtn = document.getElementById('okBtn');
 
+// Referências aos campos de usuário e senha
+const usernameInput = document.getElementById('username');
+const senhaInput = document.getElementById('senha');
+
+// Carrega valores salvos no armazenamento local e pré-preenche os campos
+if (localStorage.getItem('savedUsername')) {
+    usernameInput.value = localStorage.getItem('savedUsername');
+}
+if (localStorage.getItem('savedSenha')) {
+    senhaInput.value = localStorage.getItem('savedSenha');
+}
+
+// Persiste os valores digitados pelo usuário em localStorage sempre que houver mudança
+usernameInput.addEventListener('input', function() {
+    localStorage.setItem('savedUsername', this.value);
+});
+senhaInput.addEventListener('input', function() {
+    localStorage.setItem('savedSenha', this.value);
+});
+
 // Variável para armazenar a nota fiscal selecionada
 let selectedNote = null;
 
