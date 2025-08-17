@@ -52,7 +52,6 @@ header('Content-Type: text/html; charset=UTF-8');
         width: 100%;
         font-size: 1.3em;
         padding: 14px;
-        background-color: #007bff;
         color: #fff;
         border: none;
         border-radius: 6px;
@@ -60,7 +59,7 @@ header('Content-Type: text/html; charset=UTF-8');
     }
 
     button:hover {
-        background-color: #0069d9;
+        opacity: 0.9;
     }
 
     /* Estilo para botão desabilitado */
@@ -69,6 +68,23 @@ header('Content-Type: text/html; charset=UTF-8');
         color: #fff;
         cursor: not-allowed;
         opacity: 0.65;
+    }
+
+    /* Estilo específico para o botão de envio */
+    #submitBtn {
+        background-color: #007bff;
+    }
+    #submitBtn:hover {
+        background-color: #0069d9;
+    }
+
+    /* Estilo específico para o botão de atualizar lista */
+    #updateListBtn {
+        margin-top: 20px;
+        background-color: #28a745;
+    }
+    #updateListBtn:hover {
+        background-color: #218838;
     }
 
     #resposta {
@@ -167,6 +183,8 @@ header('Content-Type: text/html; charset=UTF-8');
         <label for="senha">Senha:</label>
         <input type="password" id="senha" name="senha" required>
 
+        <button type="button" id="updateListBtn">Atualizar lista</button>
+
         <label for="numero_nota">Número da Nota Fiscal:</label>
         <!-- Campo numérico com entrada restrita a números -->
         <input type="text" id="numero_nota" name="numero_nota" required inputmode="numeric" pattern="\d*">
@@ -187,21 +205,22 @@ header('Content-Type: text/html; charset=UTF-8');
 </div>
 
 <script>
-// Lista de notas fiscais para autocomplete
-const notas = ["15423","15453","15543","15643","16743","16892","18443","19443","19543","19643","19655","19666","19667"];
+// Lista de notas fiscais (inicialmente vazia; será atualizada a partir do servidor)
+let notas = [];
 
-const inputNota = document.getElementById('numero_nota');
-const suggestions = document.getElementById('suggestions');
-const submitBtn = document.getElementById('submitBtn');
-const form = document.getElementById('envioForm');
+const inputNota    = document.getElementById('numero_nota');
+const suggestions  = document.getElementById('suggestions');
+const submitBtn    = document.getElementById('submitBtn');
+const form         = document.getElementById('envioForm');
+const updateListBtn= document.getElementById('updateListBtn');
 // Variáveis relacionadas ao modal
-const modal = document.getElementById('modal');
+const modal        = document.getElementById('modal');
 const modalMessage = document.getElementById('modal-message');
-const okBtn = document.getElementById('okBtn');
+const okBtn        = document.getElementById('okBtn');
 
 // Referências aos campos de usuário e senha
 const usernameInput = document.getElementById('username');
-const senhaInput = document.getElementById('senha');
+const senhaInput    = document.getElementById('senha');
 
 // Carrega valores salvos no armazenamento local e pré-preenche os campos
 if (localStorage.getItem('savedUsername')) {
@@ -226,26 +245,6 @@ let selectedNote = null;
 if (submitBtn) {
     submitBtn.disabled = true;
 }
-
-// Evento de envio do formulário
-form.addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-    fetch('events.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.text())
-    .then(data => {
-        // Exibe a resposta no modal em vez de na div #resposta
-        modalMessage.innerHTML = data;
-        modal.style.display = 'block';
-    })
-    .catch(error => {
-        modalMessage.innerHTML = 'Erro ao enviar dados: ' + error;
-        modal.style.display = 'block';
-    });
-});
 
 // Função para renderizar as sugestões de notas fiscais
 function renderSuggestions(value) {
@@ -274,6 +273,56 @@ function renderSuggestions(value) {
     suggestions.style.display = 'block';
 }
 
+// Evento para atualizar a lista de notas fiscais a partir do servidor
+updateListBtn.addEventListener('click', function() {
+    // Cria FormData com credenciais e ação listar
+    const data = new FormData();
+    data.append('username', usernameInput.value);
+    data.append('senha', senhaInput.value);
+    data.append('action', 'listar');
+    fetch('events.php', {
+        method: 'POST',
+        body: data
+    })
+    .then(response => response.json())
+    .then(list => {
+        // Atualiza a lista de notas
+        notas = list;
+        selectedNote = null;
+        // Desabilita botão de envio até selecionar nova nota
+        if (submitBtn) {
+            submitBtn.disabled = true;
+        }
+        // Atualiza as sugestões exibidas
+        renderSuggestions('');
+    })
+    .catch(error => {
+        // Mostra erro no modal
+        modalMessage.innerHTML = 'Erro ao atualizar lista: ' + error;
+        modal.style.display = 'block';
+    });
+});
+
+// Evento de envio do formulário
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('events.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+        // Exibe a resposta no modal em vez de na div #resposta
+        modalMessage.innerHTML = data;
+        modal.style.display = 'block';
+    })
+    .catch(error => {
+        modalMessage.innerHTML = 'Erro ao enviar dados: ' + error;
+        modal.style.display = 'block';
+    });
+});
+
 // Evento de entrada no campo de número de nota
 inputNota.addEventListener('input', function() {
     // Sempre desabilita o botão enquanto o usuário está digitando
@@ -288,9 +337,6 @@ inputNota.addEventListener('input', function() {
     const value = cleaned.trim();
     renderSuggestions(value);
 });
-
-// Exibe todas as sugestões quando a página carrega
-inputNota.dispatchEvent(new Event('input'));
 
 // Evento do botão OK do modal
 okBtn.addEventListener('click', function() {
