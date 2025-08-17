@@ -186,7 +186,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <input type="password" id="senha" name="senha" required>
         </div>
 
-        <button type="button" id="updateListBtn">Atualizar lista</button>
+        <button type="button" id="updateListBtn">Entrar</button>
 
         <!-- Seção que agrupa o rótulo, o campo da nota, a lista de sugestões e o botão de envio
              Esta seção inicia oculta e só é exibida depois que a lista de notas é carregada -->
@@ -324,6 +324,9 @@ updateListBtn.addEventListener('click', function() {
         }
         // Atualiza as sugestões exibidas
         renderSuggestions('');
+
+        // Após a primeira atualização, altera o texto do botão para "Atualizar lista"
+        updateListBtn.textContent = 'Atualizar lista';
     })
     .catch(error => {
         // Mostra erro no modal
