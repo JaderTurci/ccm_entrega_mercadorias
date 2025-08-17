@@ -177,11 +177,14 @@ header('Content-Type: text/html; charset=UTF-8');
     </div>
     <h1>Entrega de Mercadorias</h1>
     <form id="envioForm">
-        <label for="username">Usuário:</label>
-        <input type="text" id="username" name="username" required>
+        <!-- Seção de credenciais do usuário (nome de usuário e senha). Será ocultada após atualizar a lista -->
+        <div id="credentialSection">
+            <label for="username">Usuário:</label>
+            <input type="text" id="username" name="username" required>
 
-        <label for="senha">Senha:</label>
-        <input type="password" id="senha" name="senha" required>
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha" required>
+        </div>
 
         <button type="button" id="updateListBtn">Atualizar lista</button>
 
@@ -217,6 +220,8 @@ const suggestions  = document.getElementById('suggestions');
 const submitBtn    = document.getElementById('submitBtn');
 const form         = document.getElementById('envioForm');
 const updateListBtn= document.getElementById('updateListBtn');
+// Seção de credenciais (usuário e senha) que deve ser ocultada após a atualização da lista
+const credentialSection = document.getElementById('credentialSection');
 // Seção que contém os controles de número da nota, lista de sugestões e botão de envio
 const notaSection  = document.getElementById('notaSection');
 // Variáveis relacionadas ao modal
@@ -311,6 +316,11 @@ updateListBtn.addEventListener('click', function() {
             } else {
                 notaSection.style.display = 'none';
             }
+        }
+
+        // Oculta as credenciais, pois não será necessário redigitá-las
+        if (credentialSection) {
+            credentialSection.style.display = 'none';
         }
         // Atualiza as sugestões exibidas
         renderSuggestions('');
