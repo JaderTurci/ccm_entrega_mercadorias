@@ -185,13 +185,17 @@ header('Content-Type: text/html; charset=UTF-8');
 
         <button type="button" id="updateListBtn">Atualizar lista</button>
 
-        <label for="numero_nota">Número da Nota Fiscal:</label>
-        <!-- Campo numérico com entrada restrita a números -->
-        <input type="text" id="numero_nota" name="numero_nota" required inputmode="numeric" pattern="\d*">
-        <!-- Lista de sugestões de notas fiscais -->
-        <ul id="suggestions" class="suggestions-list"></ul>
+        <!-- Seção que agrupa o rótulo, o campo da nota, a lista de sugestões e o botão de envio
+             Esta seção inicia oculta e só é exibida depois que a lista de notas é carregada -->
+        <div id="notaSection" style="display: none;">
+            <label for="numero_nota">Número da Nota Fiscal:</label>
+            <!-- Campo numérico com entrada restrita a números -->
+            <input type="text" id="numero_nota" name="numero_nota" required inputmode="numeric" pattern="\d*">
+            <!-- Lista de sugestões de notas fiscais -->
+            <ul id="suggestions" class="suggestions-list"></ul>
 
-        <button type="submit" id="submitBtn" disabled>Enviar</button>
+            <button type="submit" id="submitBtn" disabled>Enviar</button>
+        </div>
     </form>
     <div id="resposta"></div>
 </div>
@@ -213,6 +217,8 @@ const suggestions  = document.getElementById('suggestions');
 const submitBtn    = document.getElementById('submitBtn');
 const form         = document.getElementById('envioForm');
 const updateListBtn= document.getElementById('updateListBtn');
+// Seção que contém os controles de número da nota, lista de sugestões e botão de envio
+const notaSection  = document.getElementById('notaSection');
 // Variáveis relacionadas ao modal
 const modal        = document.getElementById('modal');
 const modalMessage = document.getElementById('modal-message');
@@ -244,6 +250,11 @@ let selectedNote = null;
 // Garante que o botão de envio inicie desabilitado
 if (submitBtn) {
     submitBtn.disabled = true;
+}
+
+// Garante que a seção de nota esteja oculta inicialmente
+if (notaSection) {
+    notaSection.style.display = 'none';
 }
 
 // Função para renderizar as sugestões de notas fiscais
@@ -292,6 +303,14 @@ updateListBtn.addEventListener('click', function() {
         // Desabilita botão de envio até selecionar nova nota
         if (submitBtn) {
             submitBtn.disabled = true;
+        }
+        // Exibe ou oculta a seção de nota conforme existirem notas
+        if (notaSection) {
+            if (notas && notas.length > 0) {
+                notaSection.style.display = 'block';
+            } else {
+                notaSection.style.display = 'none';
+            }
         }
         // Atualiza as sugestões exibidas
         renderSuggestions('');
@@ -358,6 +377,12 @@ okBtn.addEventListener('click', function() {
     }
     // Reexibe as sugestões atualizadas
     renderSuggestions('');
+    // Se não houver mais notas, oculta a seção de nota
+    if (notaSection) {
+        if (!notas || notas.length === 0) {
+            notaSection.style.display = 'none';
+        }
+    }
 });
 </script>
 </body>
