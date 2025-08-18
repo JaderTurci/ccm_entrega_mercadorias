@@ -1,5 +1,6 @@
 <?php
 // Força o uso de UTF-8 nas respostas HTTP
+// test comment
 header('Content-Type: text/html; charset=UTF-8');
 ?>
 <!DOCTYPE html>
@@ -168,10 +169,89 @@ header('Content-Type: text/html; charset=UTF-8');
     #okBtn:hover {
         background-color: #0069d9;
     }
+
+/* Estilo para ícone de menu no canto superior esquerdo */
+#menuIcon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 1.8em;
+    cursor: pointer;
+    color: #333;
+    z-index: 1100;
+}
+
+/* Estilos para o popup de menu */
+#menuPopup {
+    display: none;
+    position: fixed;
+    z-index: 1200;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#menuContent {
+    background-color: #ffffff;
+    margin: 20% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 300px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+#menuContent ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#menuContent li {
+    margin: 10px 0;
+    padding: 10px;
+    cursor: pointer;
+    background-color: #f2f2f2;
+    border-radius: 4px;
+}
+
+#menuContent li:hover {
+    background-color: #e0e0e0;
+}
+
+/* Tema escuro */
+body.dark-mode {
+    background-color: #2c2c2c;
+    color: #f5f5f5;
+}
+
+body.dark-mode .modal-content,
+body.dark-mode #menuContent {
+    background-color: #444;
+    color: #fff;
+}
+
+body.dark-mode input,
+body.dark-mode .suggestions-list {
+    background-color: #555;
+    color: #fff;
+    border-color: #666;
+}
+
+body.dark-mode button {
+    color: #fff;
+}
+
 </style>
 </head>
 <body>
-<div class="app-container">
+<div class="app-container" style="position: relative;">
+    <!-- Ícone de menu no canto superior esquerdo -->
+    <div id="menuIcon">&#9776;</div>
     <div class="logo-container">
         <img src="logotipo.png" alt="Logo CCM">
     </div>
@@ -211,6 +291,16 @@ header('Content-Type: text/html; charset=UTF-8');
     </div>
 </div>
 
+
+<!-- Popup de menu -->
+<div id="menuPopup" class="modal">
+    <div id="menuContent">
+        <ul>
+            <li id="toggleTheme">Modo claro/escuro</li>
+            <li id="logout">Sair</li>
+        </ul>
+    </div>
+</div>
 <script>
 // Lista de notas fiscais (inicialmente vazia; será atualizada a partir do servidor)
 let notas = [];
@@ -397,6 +487,66 @@ okBtn.addEventListener('click', function() {
         }
     }
 });
+
+// Funções e eventos para o menu
+const menuIcon     = document.getElementById('menuIcon');
+const menuPopup    = document.getElementById('menuPopup');
+const toggleTheme  = document.getElementById('toggleTheme');
+const logoutBtn    = document.getElementById('logout');
+
+// Exibe o menu quando o ícone é clicado
+if (menuIcon) {
+    menuIcon.addEventListener('click', function() {
+        menuPopup.style.display = 'block';
+    });
+}
+
+// Alterna entre modo claro e escuro
+if (toggleTheme) {
+    toggleTheme.addEventListener('click', function() {
+        document.body.classList.toggle('dark-mode');
+        menuPopup.style.display = 'none';
+    });
+}
+
+// Função para realizar logout: limpar dados e reiniciar interface
+function logoutUser() {
+    // Limpa localStorage de credenciais
+    localStorage.removeItem('savedUsername');
+    localStorage.removeItem('savedSenha');
+    // Limpa campos de entrada
+    usernameInput.value = '';
+    senhaInput.value = '';
+    // Exibe credenciais novamente
+    if (credentialSection) {
+        credentialSection.style.display = 'block';
+    }
+    // Oculta seção de notas
+    if (notaSection) {
+        notaSection.style.display = 'none';
+    }
+    // Limpa lista de notas
+    notas = [];
+    selectedNote = null;
+    // Recarrega sugestões vazias
+    renderSuggestions('');
+    // Reinicia botão Entrar/Atualizar lista
+    updateListBtn.textContent = 'Entrar';
+    // Desabilita botão de envio
+    if (submitBtn) {
+        submitBtn.disabled = true;
+    }
+    // Oculta popup de menu
+    menuPopup.style.display = 'none';
+}
+
+// Define evento de logout
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+        logoutUser();
+    });
+}
+
 </script>
 </body>
 </html>
