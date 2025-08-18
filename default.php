@@ -1,6 +1,6 @@
 <?php
 // Força o uso de UTF-8 nas respostas HTTP
-// test comment
+// 
 header('Content-Type: text/html; charset=UTF-8');
 ?>
 <!DOCTYPE html>
@@ -244,6 +244,27 @@ body.dark-mode .suggestions-list {
 
 body.dark-mode button {
     color: #fff;
+}
+
+
+/* Ajustes de tema escuro para títulos e labels */
+body.dark-mode h1,
+body.dark-mode label {
+    color: #f5f5f5;
+}
+
+body.dark-mode #menuIcon {
+    color: #fff;
+}
+
+body.dark-mode #menuContent li {
+    background-color: #555;
+    color: #fff;
+}
+
+/* Inverte cores do logotipo no modo escuro */
+body.dark-mode .logo-container img {
+    filter: invert(1) brightness(2);
 }
 
 </style>

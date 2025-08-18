@@ -34,8 +34,6 @@ $numeroNotaSafe = htmlspecialchars($numeroNota, ENT_QUOTES, 'UTF-8');
     <title>Dados enviados</title>
 </head>
 <body>
-<p>Usuário: <?= $usernameSafe ?></p>
-<p>Senha: <?= $senhaSafe ?></p>
-<p>Número da Nota Fiscal: <?= $numeroNotaSafe ?></p>
+<p>Nota fiscal <?= $numeroNotaSafe ?> informada com sucesso</p>
 </body>
 </html>
